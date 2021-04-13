@@ -1,0 +1,31 @@
+name: clinica
+recipe: drupal7
+config:
+  php: '7.2'
+  composer_version: '2.0.7'
+  via: nginx
+  webroot: ./
+  drush: ^8
+  xdebug: false
+services:
+  appserver:
+    overrides:
+      environment:
+        DRUSH_OPTIONS_URI: 'http://clinica.lndo.site'
+  database:
+    type: mysql:5.7.24
+    portforward: true
+    creds:
+      user: drupal
+      password: drupal
+      database: drupal7
+    host: database
+  myadmin:
+    type: phpmyadmin
+    hosts:
+      - database
+tooling:
+  drush:
+    service: appserver
+    description: Run Drush commands
+    cmd: /app/vendor/bin/drush --root=/app
