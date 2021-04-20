@@ -25,12 +25,14 @@ regions[page_bottom]    = 'Page bottom'
 ;; Stylesheets
 ;;;;;;;;;;;;;;;;;;;;;
 
-stylesheets[all][] = css/style.css
+stylesheets[all][] = assets/css/style.css
 
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Scripts
 ;;;;;;;;;;;;;;;;;;;;;
+
+scripts[] = 'assets/js/clinica.js'
 
 ; Uncomment the following scripts if using Less source JavaScript files.
 ;scripts[] = 'bootstrap/js/affix.js'

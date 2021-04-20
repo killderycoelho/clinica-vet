@@ -2,3 +2,11 @@
  * If using a CSS pre-processor, tell it to overwrite this file. If not, place
  * your custom CSS modifications here.
  */
+
+.not-logged-in .tabs--primary {
+  display: none;
+}
+
+#user-login .form-control {
+  width: 65%;
+}
