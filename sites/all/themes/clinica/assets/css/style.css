@@ -32,3 +32,33 @@
 .not-logged-in .navbar.container-fluid {
   margin-top: auto !important;
 }
+
+#block-views-sobrenos-block {
+  padding-top: 70px;
+}
+
+.view-id-sobrenos .view-content .views-field-title {
+  font-size: 22px;
+  color: #337ab7;
+  margin: 10px;
+}
+
+.view-id-sobrenos .view-content .views-field-field-description {
+  font-size: 18px;
+  padding-top: 19px;
+  padding-right: 84px;
+  padding-bottom: 7px;
+  padding-left: 104px;
+}
+
+.view-id-sobrenos .view-content .views-field-field-ytvideo {
+  margin-left: 23px;
+}
+
+.view-id-sobrenos .view-content .views-field {
+  text-align: center;
+}
+
+.footer {
+  background-color: #f5f5f5;
+}
