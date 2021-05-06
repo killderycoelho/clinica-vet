@@ -1,7 +1,5 @@
 <?php
 
-require_once "reports/ReportsTutor.php";
-
 function clinica_node_insert($node){
   if ($node->type == "pet"){
     $updateNode = node_load($node->nid);
