@@ -77,7 +77,7 @@
 <header id="navbar" role="banner" class="<?php print $navbar_classes; ?>">
   <div class="<?php print $container_class; ?>">
     <div class="row">
-      <div class="navbar-header" style="margin-left: 18%">
+      <div class="" style="margin-left: 18%">
         <?php if ($logo): ?>
           <a class="logo navbar-btn pull-left" href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>">
             <img src="<?php print $logo; ?>" style="width: 70px; alt="<?php print t('Home'); ?>" />

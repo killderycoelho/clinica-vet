@@ -1,32 +1,39 @@
 <?php
 
+require_once "reports/ReportsTutor.php";
+
+function clinica_node_insert($node){
+  if ($node->type == "pet"){
+    $updateNode = node_load($node->nid);
+    $updateNode->title = $node->title . ' - ' . $node->name;
+    node_save($updateNode);
+  }
+}
+
 /**
-
  * Implementation of hook_menu().
-
  */
-
 function clinica_menu() {
 
   $menuitems['schedules'] = array(
     'title' => 'Agendametos',
-    'page callback' => 'clinica_reports',
+    'page callback' => '_scheduler_query',
     'access callback' => 'user_is_logged_in',
     'menu_name' => 'main-menu',
     'type' => MENU_NORMAL_ITEM,
   );
 
-  $menuitems['create/pet'] = array(
-    'title' => 'Adicionar pet',
-    'page callback' => 'clinica_reports',
+  $menuitems['pets'] = array(
+    'title' => 'Pets',
+    'page callback' => '_create_pet',
     'access callback' => 'user_is_logged_in',
     'menu_name' => 'main-menu',
     'type' => MENU_NORMAL_ITEM,
   );
 
-  $menuitems['reports'] = array(
-    'title' => 'Relatorios',
-    'page callback' => 'clinica_reports',
+  $menuitems['report-pet'] = array(
+    'title' => 'Meus Pets',
+    'page callback' => '_my_pets_list',
     'access callback' => 'user_is_logged_in',
     'menu_name' => 'main-menu',
     'type' => MENU_NORMAL_ITEM,
@@ -50,7 +57,7 @@ function clinica_menu() {
 
   $menuitems['login'] = array(
     'title' => 'Entrar',
-    'page callback' => 'clinica_mymenu_page_callback',
+    'page callback' => '_clinica_mymenu_page_callback',
     'access callback' => 'user_is_anonymous',
     'menu_name' => 'main-menu',
     'type' => MENU_NORMAL_ITEM,
@@ -60,12 +67,40 @@ function clinica_menu() {
 
 }
 
-function clinica_mymenu_page_callback() {
+function avanz_relatorios_theme()
+{
+  return array(
+    'clinica_pets_reports' => array(
+      'template' => 'templates/relatorio.pets',
+      'variables' => array('dados' => NULL),
+    )
+  );
+}
+
+/**
+ * @return string
+ */
+function _clinica_mymenu_page_callback() {
   $result = "<a href='/user'>Login</a> <br>";
   $result.="<a href='/user/register'>Registrar-se</a>";
   return $result;
 }
 
-function clinica_reports() {
-
+function _create_pet() {
+  return drupal_goto('node/add/pet');
 }
+
+function _scheduler_query() {
+  return drupal_goto('node/add/scheduler');
+}
+
+function _my_pets_list() {
+  return views_embed_view('pet_s', 'page');
+}
+
+
+
+
+
+
+

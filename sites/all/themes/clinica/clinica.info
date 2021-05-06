@@ -24,14 +24,16 @@ regions[page_bottom]    = 'Page bottom'
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Stylesheets
 ;;;;;;;;;;;;;;;;;;;;;
-
+stylesheets[all][] = assets/css/owl.carousel.min.css
+stylesheets[all][] = assets/css/owl.theme.default.min.css
 stylesheets[all][] = assets/css/style.css
-
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Scripts
 ;;;;;;;;;;;;;;;;;;;;;
 
+scripts[] = 'assets/js/owl.carousel.js'
+scripts[] = 'assets/js/owl.autoplay.js'
 scripts[] = 'assets/js/clinica.js'
 
 ; Uncomment the following scripts if using Less source JavaScript files.
