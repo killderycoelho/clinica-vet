@@ -23,3 +23,12 @@
 #block-views-banners-block .css-banner ul {
   list-style-type: none;
 }
+
+.container-fluid .row .page-header {
+  display: none;
+}
+
+.not-logged-in.navbar.container,
+.not-logged-in .navbar.container-fluid {
+  margin-top: auto !important;
+}
