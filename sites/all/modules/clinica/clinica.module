@@ -8,6 +8,10 @@ function clinica_node_insert($node){
   }
 }
 
+function clinica_user_login(&$edit, $account) {
+  drupal_goto('user-page');
+}
+
 /**
  * Implementation of hook_menu().
  */

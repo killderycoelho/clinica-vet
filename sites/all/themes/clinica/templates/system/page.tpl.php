@@ -73,13 +73,25 @@
  *
  * @ingroup templates
  */
+
+/**
+ * @return string
+ */
+function _redirectUser() {
+  $url = '/';
+  if(user_is_logged_in()){
+    return "/user-page";
+  }
+
+  return $url;
+}
 ?>
 <header id="navbar" role="banner" class="<?php print $navbar_classes; ?>">
   <div class="<?php print $container_class; ?>">
     <div class="row">
       <div class="" style="margin-left: 18%">
         <?php if ($logo): ?>
-          <a class="logo navbar-btn pull-left" href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>">
+          <a class="logo navbar-btn pull-left" href="<?php print _redirectUser(); ?>" title="<?php print t('Home'); ?>">
             <img src="<?php print $logo; ?>" style="width: 70px; alt="<?php print t('Home'); ?>" />
           </a>
         <?php endif; ?>

@@ -37,6 +37,10 @@
   padding-top: 70px;
 }
 
+.view-id-sobrenos {
+   margin-bottom: 15%;
+}
+
 .view-id-sobrenos .view-content .views-field-title {
   font-size: 22px;
   color: #337ab7;
@@ -59,6 +63,23 @@
   text-align: center;
 }
 
+.container-user-logged {
+  height: 200px;
+  position: relative;
+}
+
+.container-user-logged .wellcome {
+  margin: 0;
+  position: relative;
+  top: 140%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  font-size: 22px;
+}
+
 .footer {
   background-color: #f5f5f5;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
