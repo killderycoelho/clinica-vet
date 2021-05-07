@@ -97,7 +97,7 @@ function _redirectUser() {
         <?php endif; ?>
 
         <?php if (!empty($site_name)): ?>
-          <a class="name navbar-brand" style="margin-top: 19px; font-size: 30px;" href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>"><?php print $site_name; ?></a>
+          <a class="name navbar-brand" style="margin-top: 19px; font-size: 30px;" href="<?php print _redirectUser(); ?>" title="<?php print t('Home'); ?>"><?php print $site_name; ?></a>
         <?php endif; ?>
       </div>
 

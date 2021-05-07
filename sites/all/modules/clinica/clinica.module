@@ -17,25 +17,17 @@ function clinica_user_login(&$edit, $account) {
  */
 function clinica_menu() {
 
-  $menuitems['schedules'] = array(
-    'title' => 'Agendametos',
-    'page callback' => '_scheduler_query',
-    'access callback' => 'user_is_logged_in',
-    'menu_name' => 'main-menu',
-    'type' => MENU_NORMAL_ITEM,
-  );
-
-  $menuitems['pets'] = array(
-    'title' => 'Pets',
-    'page callback' => '_create_pet',
-    'access callback' => 'user_is_logged_in',
-    'menu_name' => 'main-menu',
-    'type' => MENU_NORMAL_ITEM,
-  );
-
   $menuitems['report-pet'] = array(
     'title' => 'Meus Pets',
     'page callback' => '_my_pets_list',
+    'access callback' => 'user_is_logged_in',
+    'menu_name' => 'main-menu',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $menuitems['schedules'] = array(
+    'title' => 'Agendametos',
+    'page callback' => '_my_scheduler_list',
     'access callback' => 'user_is_logged_in',
     'menu_name' => 'main-menu',
     'type' => MENU_NORMAL_ITEM,
@@ -59,7 +51,7 @@ function clinica_menu() {
 
   $menuitems['login'] = array(
     'title' => 'Entrar',
-    'page callback' => '_clinica_mymenu_page_callback',
+    'page callback' => '_login_page',
     'access callback' => 'user_is_anonymous',
     'menu_name' => 'main-menu',
     'type' => MENU_NORMAL_ITEM,
@@ -82,14 +74,10 @@ function avanz_relatorios_theme()
 /**
  * @return string
  */
-function _clinica_mymenu_page_callback() {
+function _login_page() {
   $result = "<a href='/user'>Login</a> <br>";
   $result.="<a href='/user/register'>Registrar-se</a>";
   return $result;
-}
-
-function _create_pet() {
-  return drupal_goto('node/add/pet');
 }
 
 function _scheduler_query() {
@@ -98,6 +86,10 @@ function _scheduler_query() {
 
 function _my_pets_list() {
   return views_embed_view('pet_s', 'page');
+}
+
+function _my_scheduler_list() {
+  return views_embed_view('agendamentos', 'page');
 }
 
 
