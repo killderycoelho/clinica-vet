@@ -1,6 +1,4 @@
-<?php
-$node = node_load($row->nid);
-?>
+<?php $node = node_load($row->nid); ?>
 <a class="show-modal" data-toggle="modal" data-target="#schedulerModal">Ver</a>
 
 <div class="modal fade" id="schedulerModal" role="dialog">
@@ -8,7 +6,7 @@ $node = node_load($row->nid);
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Detalhes da Consulta</h4>
+        <h4 class="modal-title">Detalhes</h4>
       </div>
       <div class="modal-body">
         <div class="row">

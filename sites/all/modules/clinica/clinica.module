@@ -18,8 +18,8 @@ function clinica_user_login(&$edit, $account) {
 function clinica_menu() {
 
   $menuitems['report-pet'] = array(
-    'title' => 'Meus Pets',
-    'page callback' => '_my_pets_list',
+    'title' => 'Pets',
+    'page callback' => '_pets_list',
     'access callback' => 'user_is_logged_in',
     'menu_name' => 'main-menu',
     'type' => MENU_NORMAL_ITEM,
@@ -80,16 +80,17 @@ function _login_page() {
   return $result;
 }
 
-function _scheduler_query() {
-  return drupal_goto('node/add/scheduler');
-}
-
-function _my_pets_list() {
+function _pets_list() {
   return views_embed_view('pet_s', 'page');
 }
 
 function _my_scheduler_list() {
-  return views_embed_view('agendamentos', 'page');
+  global $user;
+  if (in_array('Tutor', $user->roles)){
+    return views_embed_view('agendamentos', 'page');
+  }
+
+  return views_embed_view('agendamentos', 'page_1');
 }
 
 
