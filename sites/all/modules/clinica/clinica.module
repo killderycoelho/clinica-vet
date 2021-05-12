@@ -75,8 +75,10 @@ function avanz_relatorios_theme()
  * @return string
  */
 function _login_page() {
-  $result = "<a href='/user'>Login</a> <br>";
-  $result.="<a href='/user/register'>Registrar-se</a>";
+  $result = "<div class='login-wrapper'>";
+  $result = "<a class='login-link' href='/user'>Login</a> <br>";
+  $result.="<a class='register-link' href='/user/register'>Registrar-se</a>";
+  $result.="</div>";
   return $result;
 }
 
