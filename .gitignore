@@ -6,3 +6,6 @@ sites/*/settings*.php
 #sites/*/private
 
 .idea/
+.diretory/
+sites/default/clinica.sql.gz
+
