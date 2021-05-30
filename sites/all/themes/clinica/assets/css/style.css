@@ -7,9 +7,9 @@
   display: none;
 }
 
-#user-login .form-control {
+/* #user-login .form-control {
   width: 65%;
-}
+} */
 
 .front .navbar {
   margin-bottom: auto !important;
@@ -132,16 +132,36 @@
 }
 
 .clearfix {
-  text-align: center;
+  text-align: left;
 }
 
-.form-control {
-  max-width: 400px;
+.form-group, .form-control{
+    max-width: 400px;
     margin: auto;
-    text-align: center;
+    text-align: left;
     margin-bottom: 20px;
     /* padding-right: 4px; */
 }
 #edit-field-birthday-und-0-value {
-  margin-left: 40px;
+  margin: auto;
+  text-align: center;
 }
+.form-item-field-birthday-und-0-value-date{
+  margin: auto;
+}
+
+#block-system-main{
+  text-align: center;
+  margin: auto;
+}
+
+/* .form-group{
+  margin: auto;
+  max-width: 400px;
+} */
+
+/* #edit-actions {
+  min-width: 150px;
+  text-align: center;
+  margin: auto;
+} */
