@@ -97,7 +97,7 @@
 
 .login-link {
   margin-top: 110px;
-  background-color: #4CAF50; /* Green */
+  background-color: #337ab7; /* Green */
   font-weight: bold;
   font-size: 20pt;
   border: none;
@@ -114,7 +114,7 @@
 }
 .register-link {
   color: #fff;
-  background-color: #337ab7;
+  background-color: #4CAF50;  
   font-weight: bold;
   border-color: #2e6da4;
   padding: 15px 32px;
