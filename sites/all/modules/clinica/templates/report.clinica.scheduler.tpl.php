@@ -6,15 +6,9 @@ $variables = array(
   'quantity' => 5,
 );
 
-$rowTotal = array(array(
-  array('data' => 'Total', 'header' => 1, 'width' => '80'),
-  array('data' => $dados['total'], 'header' => 1),
-));
-
 if ($toDownload !== true) {
-  avanz_relatorios_include_css();
   drupal_add_js(libraries_get_path('maskedinput') . '/jquery.maskedinput-1.3.js');
-  drupal_add_js(drupal_get_path('module', 'avanz') . "/avanz.mask.js");
+  rupal_add_js(drupal_get_path('module', 'clinica') . "/clinica.mask.js");
 
   drupal_add_js(drupal_get_path('module', 'jquery_update') . "/replace/ui/ui/minified/jquery-ui.min.js");
   drupal_add_css(drupal_get_path('module', 'jquery_update') . "/replace/ui/themes/base/minified/jquery-ui.min.css");
@@ -76,8 +70,7 @@ if ($toDownload !== true) {
     <div class="table-responsive">
       <?php
       if (!empty($dados)) {
-        print theme('table', array('rows' => $rowTotal, 'attributes' => array('class' => ['table-bordered', 'table-hover', 'table-report'])));
-        print theme('table', array('header' => array_keys($dados['header']), 'rows' => $dados['rows'], 'attributes' => array('class' => ['table-bordered', 'table-hover', 'table-report'])))
+        print theme('table', array('header' => $dados['header'], 'rows' => $dados['rows'], 'attributes' => array('class' => ['table-bordered', 'table-hover', 'table-report'])))
           .theme_pager($variables);
       }
       ?>
@@ -85,9 +78,7 @@ if ($toDownload !== true) {
   </div>
   <?php
 } else {
-  print theme('table', array('rows' => $rowTotal, 'attributes' => array('class' => ['table-bordered', 'table-hover', 'table-report'])));
-  print theme('report_scheduler', array('header' => $dados['header'], 'attributes' => array('border' => "1"), 'rows' => $dados['rows']));
-  //print theme('table', array('header' => array_keys($dados['header']), 'attributes' => array('border' => "1"), 'rows' => $dados['rows']));
+  print theme('clinica_report_table_theme', array('header' => $dados['header'], 'attributes' => array('border' => "1"), 'rows' => $dados['rows']));
   exit;
 
 }

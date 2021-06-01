@@ -1,11 +1,30 @@
 <?php
 
+require_once 'reports/ReportSchedules.php';
+
 function clinica_node_insert($node){
   if ($node->type == "pet"){
     $updateNode = node_load($node->nid);
     $updateNode->title = $node->title . ' - ' . $node->name;
     node_save($updateNode);
   }
+}
+
+/**
+ * @return array[]
+ */
+function clinica_theme()
+{
+  return array(
+    'clinica_report_scheduler' => array(
+      'template' => 'templates/report.clinica.scheduler',
+      'variables' => array('dados' => NULL),
+    ),
+    'clinica_report_table_theme' => array(
+      'function' => '_bootstrap_avanz_table',
+      'variables' => array('variables' => array()),
+    ),
+  );
 }
 
 function clinica_user_login(&$edit, $account) {
@@ -110,19 +129,7 @@ function _clinica_scheduler_download()
   return report_schedules()->toDownload()->getTable();
 }
 
-function clinica_theme()
-{
-  return array(
-    'report_scheduler' => array(
-      'template' => 'reports/theme/report_clinica_scheduler',
-      'variables' => array('dados' => NULL),
-    ),
-    'avanz_relatorios_table_theme' => array(
-      'function' => '_bootstrap_avanz_table',
-      'variables' => array('variables' => array()),
-    ),
-  );
-}
+
 
 
 function _bootstrap_avanz_table($variables)

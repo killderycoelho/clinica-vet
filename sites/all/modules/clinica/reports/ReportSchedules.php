@@ -35,28 +35,20 @@ class ReportSchedules
   {
     $rows = array();
 
-    // paginacao
-
-    if (!$this->toDownload) {
-      $totalData = $this->getTableDataTotal(); //@TODO IMPLEMENTS
-      // Initialize the pager
-      pager_default_initialize($totalData, $this->perPage);
-    }
-
-
     $results = $this->getTableData($user = null);
 
     $header = $this->getHeadersTable();
 
     if (!empty($results)) {
       foreach ($results as $i => $value) {
+        //var_dump($value); die;
         $newRows = array(
           array('data' => $value->title),
           array('data' => $value->pet_name),
           array('data' => $value->type),
           array('data' => date("d.m.y", $value->day) . ' ' . $value->time),
           array('data' => $this->renderModalItem($value->nid)),
-          array('data' => '<a href="node/$value->nid/edit?destination=schedules">Editar</a> <a href="node/$value->nid/delete?destination=schedules">Deletar</a>'),
+          array('data' => '<a href="node/$value->nid/edit?destination=schedules">Editar</a> | <a href="node/$value->nid/delete?destination=schedules">Deletar</a>'),
         );
         $rows[] = $newRows;
       }
@@ -65,7 +57,8 @@ class ReportSchedules
         array('data' => 'Nenhum registro encontrado', 'colspan' => count($header), 'style' => 'text-align:center'),
       );
     }
-    return theme('report_scheduler', array(
+
+    return theme('clinica_report_scheduler', array(
       'dados' => array(
         'header' => $header,
         'rows' => $rows,
@@ -81,7 +74,7 @@ class ReportSchedules
    */
   private function getHeadersTable(){
     $header = array();
-    if ($this->toDownload) {
+    //if ($this->toDownload) {
       $header = array(
         array(
           array('data' => 'Tutor'),
@@ -92,16 +85,16 @@ class ReportSchedules
           array('data' => 'Ações'),
         )
       );
-    } else {
-      $header = array(
-        'Tutor' => array('data' => 'tutor', 'field' => 'tutor'),
-        'Nome do pet' => array('data' => 'pet_name', 'field' => 'pet_name'),
-        'Tipo de agendamento' => array('data' => 'scheduler_type', 'field' => 'scheduler_type'),
-        'Data do Agendamento' => array('data' => 'data_scheduler', 'field' => 'data_scheduler'),
-        'Detalhes' => array('data' => 'detalhes', 'field' => 'detalhes'),
-        'Ações' => array('data' => 'actions', 'field' => 'actions'),
-      );
-    }
+//    } else {
+//      $header = array(
+//        'Tutor' => array('data' => 'title', 'field' => 'title'),
+//        'Nome do pet' => array('data' => 'pet_name', 'field' => 'pet_name'),
+//        'Tipo de agendamento' => array('data' => 'type', 'field' => 'type'),
+//        'Data do Agendamento' => array('data' => 'day', 'field' => 'day'),
+//        'Detalhes' => array('data' => 'detalhes', 'field' => 'detalhes'),
+//        'Ações' => array('data' => 'actions', 'field' => 'actions'),
+//      );
+//    }
     return $header;
   }
 
@@ -133,7 +126,7 @@ class ReportSchedules
     $query->orderBy('day');
     $query->condition('n.type', 'scheduler');
 
-    if ($user) $query->condition('n.uid', $user->uid);
+    //if ($user) $query->condition('n.uid', $user->uid);
 
     $this->addWhereByParams($query);
 
@@ -163,7 +156,7 @@ class ReportSchedules
     if (!empty($_GET['nome'])) {
       $query->where("lower(s.nome) LIKE '%".strtolower($_GET['nome'])."%'");
     }
-    
+
     if (!empty($_GET['data_ini'])) {
       $dataInicio = join('-', array_reverse(explode('/', $_GET['data_ini']))) . ' 00:00:00';
       $query->condition('s.created', "'".$dataInicio."'", '>=');
@@ -176,6 +169,11 @@ class ReportSchedules
 
   public function renderModalItem($nid) {
     $node = node_load($nid);
+    $petname = $node->field_petname['und'][0]['value'];
+    $date = date('d/m/Y', $node->field_day['und'][0]['value']) .' - '. $node->field_horario['und'][0]['value'] .'h';
+    $type = $node->field_type['und'][0]['value'];
+    $description = $node->field_description['und'][0]['value'];
+
     $out = " <a class='show-modal' data-toggle='modal' data-target='#schedulerModal'>Ver</a>
         <div class='modal fade' id='schedulerModal' role='dialog'>
           <div class='modal-dialog'>
@@ -187,17 +185,17 @@ class ReportSchedules
               <div class='modal-body'>
                 <div class='row'>
                   <div class='col-md-6 info-text'>
-                      <p><strong>Tutor:</strong>$node->title</p>
-                      <p><strong>Pet:</strong> $node->field_petname['und'][0]['value']</p>
-                      <p><strong>Data:</strong> date('d/m/Y', $node->field_day['und'][0]['value']) .' - '. $node->field_horario['und'][0]['value'] .'h'; ?></p>
-                      <p><strong>Tipo de Serviço:</strong> $node->field_type['und'][0]['value']; ?></p>
+                      <p><strong>Tutor:</strong> $node->title; </p>
+                      <p><strong>Pet:</strong> $petname</p>
+                      <p><strong>Data:</strong> $date </p>
+                      <p><strong>Tipo de Serviço: $type</p>
                   </div>
                   <div class='col-md-6'>
                     <img width='162px' src='file_create_url(drupal_get_path('theme', 'clinica') . '/assets/images/calendar.png')'>
                   </div>
                 </div>
                 <div class='row row-description'>
-                  <p><strong>Descriçao do serviço:</strong> $node->field_description['und'][0]['value']</p>
+                  <p><strong>Descriçao do serviço:</strong> $description</p>
                 </div>
               </div>
               <div class='modal-footer'>
