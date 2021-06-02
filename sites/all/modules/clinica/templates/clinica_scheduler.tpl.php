@@ -27,7 +27,6 @@ if ($toDownload !== true) {
         <div class="container-report clearfix">
           <div class="row">
             <div class="col-md-6 form-item">
-              <!-- <label>Nome</label> -->
               <input class="form-control form-text" type="text" name="nome" placeholder="Nome"
                      value="<?php print isset($_GET['nome']) ? $_GET['nome'] : ''; ?>" size="25" maxlength="128">
             </div>
