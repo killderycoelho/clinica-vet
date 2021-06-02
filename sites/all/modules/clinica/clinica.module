@@ -2,13 +2,7 @@
 
 require_once 'reports/ReportSchedules.php';
 
-function clinica_node_insert($node){
-  if ($node->type == "pet"){
-    $updateNode = node_load($node->nid);
-    $updateNode->title = $node->title . ' - ' . $node->name;
-    node_save($updateNode);
-  }
-}
+
 
 /**
  * @return array[]
@@ -117,7 +111,7 @@ function _pets_list() {
  * @return string
  * @throws Exception
  */
-function _my_scheduler_list() {
+function _my_scheduler_list() { //@TODO CREATE CALLBACK REPORT FILE
   global $user;
   if (in_array('Tutor', $user->roles)){
     return report_schedules()->getTable($user);
@@ -134,14 +128,83 @@ function _my_scheduler_list() {
  */
 function _clinica_scheduler_download()
 {
-  global $user;
-  if (in_array('Tutor', $user->roles)){
-    return report_schedules()->toDownload()->getTable($user);
-  }
-
   return report_schedules()->toDownload()->getTable();
 }
 
+
+
+/**
+ * Implements hook_node_insert
+ *
+ * @param $node
+ * @throws Exception
+ */
+function clinica_node_insert($node){
+  if ($node->type == "pet"){
+    $updateNode = node_load($node->nid);
+    $updateNode->title = $node->title . ' - ' . $node->name;
+    node_save($updateNode);
+  }
+}
+
+/**
+ * Implements hook_user_insert
+ *
+ * @param $edit
+ * @param $account
+ * @param $category
+ * @throws Exception
+ */
+function clinica_user_insert(&$edit, $account, $category) {
+  $user = user_load($edit['uid']);
+  clinica_add_role_to_user($user->uid, "Tutor");
+  $user->status = 1;
+  user_save($user);
+  clinica_reset_password($user);
+  return drupal_goto('user');
+}
+
+
+/**
+ * @param $user
+ * @param $newPass
+ * @return DatabaseStatementInterface|null
+ */
+function clinica_reset_password($user){
+  define('DRUPAL_ROOT', getcwd());
+  require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+  require_once DRUPAL_ROOT . '/includes/password.inc';
+
+  $newhash = user_hash_password('qwe123');
+  return db_update('users')->fields(array('pass' => $newhash))->condition('uid', $user->uid, '=')->execute();
+}
+
+/**
+ * Add a role to a user.
+ *
+ * @param $user
+ * @param $role_name
+ * @throws Exception
+ */
+function clinica_add_role_to_user($user, $role_name) {
+
+  if (is_numeric($user)) {
+    $user = user_load($user);
+  }
+
+  $key = array_search($role_name, $user->roles);
+  if ($key == FALSE) {
+    $roles = user_roles(TRUE);
+    $rid = array_search($role_name, $roles);
+    if ($rid != FALSE) {
+
+      $new_role[$rid] = $role_name;
+      $all_roles = $user->roles + $new_role;
+      user_save($user, array('roles' => $all_roles));
+    }
+  }
+}
 
 /**
  * @param $variables

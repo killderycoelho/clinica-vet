@@ -9,7 +9,7 @@ class ReportSchedules
   public $toDownload = false;
   public $perPage = 30;
   public $hasCountTotal = false;
-
+  public $isAdmin = false;
 
   /**
    * @return $this
@@ -43,7 +43,7 @@ class ReportSchedules
       pager_default_initialize($totalData, $this->perPage);
     }
 
-    $results = $this->getTableData($user = null);
+    $results = $this->getTableData();
 
     $header = $this->getHeadersTable();
 
@@ -87,10 +87,15 @@ class ReportSchedules
     if ($total !== null) {
       return $total;
     }
+    global $user;
+
+    if (in_array('admin master', $user->roles)) $this->isAdmin = true;
+
     $this->hasCountTotal = true;
     $query = db_select('node', 'n');
     $query->condition('n.type', 'scheduler');
     $query->addExpression('COUNT(*)', 'total');
+    if (!$this->isAdmin) $query->condition('n.uid', $user->uid);
     $this->addWhereByParams($query);
     $this->hasCountTotal = false;
     return $total = $query->execute()->fetchColumn();
@@ -134,8 +139,11 @@ class ReportSchedules
    *
    * @return type
    */
-  private function getTableData($user = null)
+  private function getTableData()
   {
+    global $user;
+
+    if (in_array('admin master', $user->roles)) $this->isAdmin = true;
 
     $query = db_select('node', 'n');
     $query->fields('n');
@@ -157,7 +165,7 @@ class ReportSchedules
     $query->orderBy('day');
     $query->condition('n.type', 'scheduler');
 
-    if ($user) $query->condition('n.uid', $user->uid);
+    if (!$this->isAdmin) $query->condition('n.uid', $user->uid);
 
     $this->addWhereByParams($query);
 
@@ -215,7 +223,7 @@ class ReportSchedules
 /**
  * Retorna uma instância da Classe
  * @staticvar null $new
- * @return \ReportSchedules
+ * @return ReportSchedules
  */
 function report_schedules()
 {
