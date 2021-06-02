@@ -17,7 +17,13 @@ function clinica_theme()
 {
   return array(
     'clinica_report_scheduler' => array(
-      'template' => 'templates/report.clinica.scheduler',
+      'path' =>  drupal_get_path('module', 'clinica'),
+      'template' => 'templates/clinica_scheduler',
+      'variables' => array('dados' => NULL),
+    ),
+    'clinica_modal' => array(
+      'path' =>  drupal_get_path('module', 'clinica'),
+      'template' => 'templates/clinica_modal',
       'variables' => array('dados' => NULL),
     ),
     'clinica_report_table_theme' => array(
@@ -26,6 +32,7 @@ function clinica_theme()
     ),
   );
 }
+
 
 function clinica_user_login(&$edit, $account) {
   drupal_goto('user-page');
@@ -52,7 +59,7 @@ function clinica_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
 
-  $items['admin/schedules/download'] = [
+  $items['schedules/download'] = [
     'title' => 'Relatório - Agendamentos',
     'description' => 'Download do relatório de agendamentos.',
     'access callback' => 'user_is_logged_in',
@@ -105,6 +112,11 @@ function _pets_list() {
   return views_embed_view('pet_s', 'page');
 }
 
+
+/**
+ * @return string
+ * @throws Exception
+ */
 function _my_scheduler_list() {
   global $user;
   if (in_array('Tutor', $user->roles)){
@@ -117,7 +129,8 @@ function _my_scheduler_list() {
 /**
  * Callback para a o download da listagem do relatório de agendamentos
  *
- * @return type
+ * @return string
+ * @throws Exception
  */
 function _clinica_scheduler_download()
 {
@@ -130,8 +143,10 @@ function _clinica_scheduler_download()
 }
 
 
-
-
+/**
+ * @param $variables
+ * @return string
+ */
 function _bootstrap_avanz_table($variables)
 {
   $header = isset($variables['header']) ? $variables['header'] : array();

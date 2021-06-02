@@ -19,7 +19,7 @@ class ReportSchedules
     $this->toDownload = true;
 
     header('Content-type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="relatorios_agendamentos_' . date('Ymd_His') . '.xls"');
+    header('Content-Disposition: attachment; filename="relatorio_agendamentos_' . date('Ymd_His') . '.xls"');
     header('Content-Transfer-Encoding: binary');
     header('Expires: 0');
     header('Pragma: no-cache');
@@ -28,12 +28,20 @@ class ReportSchedules
   }
 
   /**
-   *
-   * @return type
+   * @param null $user
+   * @return string
+   * @throws Exception
    */
   public function getTable($user = null)
   {
     $rows = array();
+
+    // paginacao
+    if (!$this->toDownload) {
+      $totalData = $this->getTableDataTotal();
+      // Initialize the pager
+      pager_default_initialize($totalData, $this->perPage);
+    }
 
     $results = $this->getTableData($user = null);
 
@@ -41,14 +49,14 @@ class ReportSchedules
 
     if (!empty($results)) {
       foreach ($results as $i => $value) {
-        //var_dump($value); die;
         $newRows = array(
           array('data' => $value->title),
           array('data' => $value->pet_name),
           array('data' => $value->type),
-          array('data' => date("d.m.y", $value->day) . ' ' . $value->time),
+          array('data' => date("d/m/y", $value->day) . ' ' . $value->time . 'h'),
+          array('data' => $value->status = 1 ? 'Aberto' : 'Realizado'),
           array('data' => $this->renderModalItem($value->nid)),
-          array('data' => '<a href="node/$value->nid/edit?destination=schedules">Editar</a> | <a href="node/$value->nid/delete?destination=schedules">Deletar</a>'),
+          array('data' => "<a href='node/$value->nid/edit?destination=schedules'>Editar</a> | <a href='node/$value->nid/delete?destination=schedules'>Deletar</a>"),
         );
         $rows[] = $newRows;
       }
@@ -62,9 +70,30 @@ class ReportSchedules
       'dados' => array(
         'header' => $header,
         'rows' => $rows,
+        'total' => $this->getTableDataTotal(),
       ),
       'toDownload' => $this->toDownload,
     ));
+  }
+
+  /**
+   * Retorna a quantidade total dos dados para o relatório
+   *
+   * @return type
+   */
+  private function getTableDataTotal()
+  {
+    static $total = null;
+    if ($total !== null) {
+      return $total;
+    }
+    $this->hasCountTotal = true;
+    $query = db_select('node', 'n');
+    $query->condition('n.type', 'scheduler');
+    $query->addExpression('COUNT(*)', 'total');
+    $this->addWhereByParams($query);
+    $this->hasCountTotal = false;
+    return $total = $query->execute()->fetchColumn();
   }
 
   /**
@@ -74,27 +103,29 @@ class ReportSchedules
    */
   private function getHeadersTable(){
     $header = array();
-    //if ($this->toDownload) {
+    if ($this->toDownload) {
       $header = array(
         array(
           array('data' => 'Tutor'),
           array('data' => 'Nome do pet'),
           array('data' => 'Tipo de agendamento'),
           array('data' => 'Data do Agendamento'),
+          array('data' => 'Status'),
           array('data' => 'Detalhes'),
           array('data' => 'Ações'),
         )
       );
-//    } else {
-//      $header = array(
-//        'Tutor' => array('data' => 'title', 'field' => 'title'),
-//        'Nome do pet' => array('data' => 'pet_name', 'field' => 'pet_name'),
-//        'Tipo de agendamento' => array('data' => 'type', 'field' => 'type'),
-//        'Data do Agendamento' => array('data' => 'day', 'field' => 'day'),
-//        'Detalhes' => array('data' => 'detalhes', 'field' => 'detalhes'),
-//        'Ações' => array('data' => 'actions', 'field' => 'actions'),
-//      );
-//    }
+    } else {
+      $header = array(
+        'Tutor' => array('data' => 'Tutor', 'field' => 'title'),
+        'Nome do pet' => array('data' => 'Nome do pet', 'field' => 'pet_name'),
+        'Tipo de agendamento' => array('data' => 'Tipo de agendamento', 'field' => 'type'),
+        'Data do Agendamento' => array('data' => 'Data do Agendamento', 'field' => 'status'),
+        'Status' => array('data' => 'Status', 'field' => 'status'),
+        'Detalhes' => array('data' => 'Detalhes', 'field' => 'detalhes'),
+        'Ações' => array('data' => 'Ações', 'field' => 'actions'),
+      );
+    }
     return $header;
   }
 
@@ -126,11 +157,11 @@ class ReportSchedules
     $query->orderBy('day');
     $query->condition('n.type', 'scheduler');
 
-    //if ($user) $query->condition('n.uid', $user->uid);
+    if ($user) $query->condition('n.uid', $user->uid);
 
     $this->addWhereByParams($query);
 
-    return $return = $query->execute()->fetchAll();
+    return $query->execute()->fetchAll();
   }
 
   /**
@@ -154,62 +185,31 @@ class ReportSchedules
     }
 
     if (!empty($_GET['nome'])) {
-      $query->where("lower(s.nome) LIKE '%".strtolower($_GET['nome'])."%'");
+      $query->where("lower(n.title) LIKE '%".strtolower($_GET['nome'])."%'");
     }
 
     if (!empty($_GET['data_ini'])) {
       $dataInicio = join('-', array_reverse(explode('/', $_GET['data_ini']))) . ' 00:00:00';
-      $query->condition('s.created', "'".$dataInicio."'", '>=');
+      $query->condition('n.created', "'".$dataInicio."'", '>=');
     }
     if (!empty($_GET['data_fim'])) {
       $dataFim = join('-', array_reverse(explode('/', $_GET['data_fim']))) . ' 23:59:59';
-      $query->condition('s.created', "'".$dataFim."'", '<=');
+      $query->condition('n.created', "'".$dataFim."'", '<=');
     }
   }
 
+  /**
+   * Render modal item
+   *
+   * @param $nid
+   * @return string
+   * @throws Exception
+   */
   public function renderModalItem($nid) {
-    $node = node_load($nid);
-    $petname = $node->field_petname['und'][0]['value'];
-    $date = date('d/m/Y', $node->field_day['und'][0]['value']) .' - '. $node->field_horario['und'][0]['value'] .'h';
-    $type = $node->field_type['und'][0]['value'];
-    $description = $node->field_description['und'][0]['value'];
-
-    $out = " <a class='show-modal' data-toggle='modal' data-target='#schedulerModal'>Ver</a>
-        <div class='modal fade' id='schedulerModal' role='dialog'>
-          <div class='modal-dialog'>
-            <div class='modal-content'>
-              <div class='modal-header'>
-                <button type='button' class='close' data-dismiss='modal'>&times;</button>
-                <h4 class='modal-title'>Detalhes</h4>
-              </div>
-              <div class='modal-body'>
-                <div class='row'>
-                  <div class='col-md-6 info-text'>
-                      <p><strong>Tutor:</strong> $node->title; </p>
-                      <p><strong>Pet:</strong> $petname</p>
-                      <p><strong>Data:</strong> $date </p>
-                      <p><strong>Tipo de Serviço: $type</p>
-                  </div>
-                  <div class='col-md-6'>
-                    <img width='162px' src='file_create_url(drupal_get_path('theme', 'clinica') . '/assets/images/calendar.png')'>
-                  </div>
-                </div>
-                <div class='row row-description'>
-                  <p><strong>Descriçao do serviço:</strong> $description</p>
-                </div>
-              </div>
-              <div class='modal-footer'>
-                <button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>
-              </div>
-            </div>
-
-          </div>
-        </div>";
-
-    return $out;
-
+    return theme('clinica_modal', array(
+      'dados' => node_load($nid),
+    ));
   }
-
 }
 
 /**
