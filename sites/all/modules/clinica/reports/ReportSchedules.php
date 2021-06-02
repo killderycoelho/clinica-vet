@@ -18,6 +18,9 @@ class ReportSchedules
   {
     $this->toDownload = true;
 
+    setlocale(LC_ALL,'pt_BR.UTF8');
+    mb_internal_encoding('UTF8');
+    mb_regex_encoding('UTF8');
     header('Content-type: application/octet-stream');
     header('Content-Disposition: attachment; filename="relatorio_agendamentos_' . date('Ymd_His') . '.xls"');
     header('Content-Transfer-Encoding: binary');
@@ -28,13 +31,16 @@ class ReportSchedules
   }
 
   /**
-   * @param null $user
    * @return string
    * @throws Exception
    */
-  public function getTable($user = null)
+  public function getTable()
   {
     $rows = array();
+
+    global $user;
+
+    if (in_array('admin master', $user->roles)) $this->isAdmin = true;
 
     // paginacao
     if (!$this->toDownload) {
@@ -49,15 +55,26 @@ class ReportSchedules
 
     if (!empty($results)) {
       foreach ($results as $i => $value) {
-        $newRows = array(
-          array('data' => $value->title),
-          array('data' => $value->pet_name),
-          array('data' => $value->type),
-          array('data' => date("d/m/y", $value->day) . ' ' . $value->time . 'h'),
-          array('data' => $value->status = 1 ? 'Aberto' : 'Realizado'),
-          array('data' => $this->renderModalItem($value->nid)),
-          array('data' => "<a href='node/$value->nid/edit?destination=schedules'>Editar</a> | <a href='node/$value->nid/delete?destination=schedules'>Deletar</a>"),
-        );
+        if(!$this->toDownload){
+          $newRows = array(
+            array('data' => $value->title),
+            array('data' => $value->pet_name),
+            array('data' => $value->type),
+            array('data' => date("d/m/Y", $value->day) . ' ' . $value->time . 'h'),
+            array('data' => $this->getStatusSchedule($value->status, $value->answered)),
+            array('data' => $this->renderModalItem($value->nid)),
+            array('data' => "<a href='node/$value->nid/edit?destination=schedules'>Editar</a> | <a href='node/$value->nid/delete?destination=schedules'>Deletar</a>"),
+          );
+        }else {
+          $newRows = array(
+            array('data' => $value->title),
+            array('data' => $value->pet_name),
+            array('data' => $value->type),
+            array('data' => date("d/m/Y", $value->day) . ' ' . $value->time . 'h'),
+            array('data' => $this->getStatusSchedule($value->status, $value->answered)),
+          );
+        }
+
         $rows[] = $newRows;
       }
     } else {
@@ -72,6 +89,7 @@ class ReportSchedules
         'rows' => $rows,
         'total' => $this->getTableDataTotal(),
       ),
+      'isAdmin' => $this->isAdmin,
       'toDownload' => $this->toDownload,
     ));
   }
@@ -89,10 +107,11 @@ class ReportSchedules
     }
     global $user;
 
-    if (in_array('admin master', $user->roles)) $this->isAdmin = true;
-
     $this->hasCountTotal = true;
     $query = db_select('node', 'n');
+    $query->leftJoin('field_data_field_day', 'day', 'n.nid = day.entity_id');
+    $query->leftJoin('field_data_field_type', 'type', 'n.nid = type.entity_id');
+    $query->leftJoin('field_data_field_petname', 'pt', 'n.nid = pt.entity_id');
     $query->condition('n.type', 'scheduler');
     $query->addExpression('COUNT(*)', 'total');
     if (!$this->isAdmin) $query->condition('n.uid', $user->uid);
@@ -115,9 +134,7 @@ class ReportSchedules
           array('data' => 'Nome do pet'),
           array('data' => 'Tipo de agendamento'),
           array('data' => 'Data do Agendamento'),
-          array('data' => 'Status'),
-          array('data' => 'Detalhes'),
-          array('data' => 'Ações'),
+          array('data' => 'Status')
         )
       );
     } else {
@@ -125,15 +142,34 @@ class ReportSchedules
         'Tutor' => array('data' => 'Tutor', 'field' => 'title'),
         'Nome do pet' => array('data' => 'Nome do pet', 'field' => 'pet_name'),
         'Tipo de agendamento' => array('data' => 'Tipo de agendamento', 'field' => 'type'),
-        'Data do Agendamento' => array('data' => 'Data do Agendamento', 'field' => 'status'),
+        'Data do Agendamento' => array('data' => 'Data do Agendamento', 'field' => 'day'),
         'Status' => array('data' => 'Status', 'field' => 'status'),
         'Detalhes' => array('data' => 'Detalhes', 'field' => 'detalhes'),
-        'Ações' => array('data' => 'Ações', 'field' => 'actions'),
+        'Ações' => array('data' => 'Ações', 'field' => 'ações'),
       );
     }
     return $header;
   }
 
+  /**
+   * @param $nodeStatus
+   * @param $nodeScheduler
+   * @return string
+   */
+  private function getStatusSchedule($nodeStatus, $nodeScheduler) {
+    if ($nodeStatus == 0 &&  !$nodeScheduler){
+      return 'Cancelado';
+    }
+    if ($nodeStatus == 1 &&  $nodeScheduler){
+      return 'Realizado';
+    }
+    if ($nodeStatus == 0 &&  $nodeScheduler){
+      return 'Realizado';
+    }
+    if ($nodeStatus == 1 &&  !$nodeScheduler){
+      return 'Agendado';
+    }
+  }
   /**
    * Retorna os dados para o relatório
    *
@@ -142,8 +178,6 @@ class ReportSchedules
   private function getTableData()
   {
     global $user;
-
-    if (in_array('admin master', $user->roles)) $this->isAdmin = true;
 
     $query = db_select('node', 'n');
     $query->fields('n');
@@ -154,6 +188,7 @@ class ReportSchedules
     $query->leftJoin('field_data_field_description', 'desc', 'n.nid = desc.entity_id');
     $query->leftJoin('field_data_field_day', 'day', 'n.nid = day.entity_id');
     $query->leftJoin('field_data_field_horario', 'time', 'n.nid = time.entity_id');
+    $query->leftJoin('field_data_field_checked_scheduler', 'chk', 'n.nid = chk.entity_id');
 
     // Expressions
     $query->addExpression('type.field_type_value', 'type');
@@ -161,8 +196,9 @@ class ReportSchedules
     $query->addExpression('desc.field_description_value', 'description');
     $query->addExpression('day.field_day_value', 'day');
     $query->addExpression('time.field_horario_value', 'time');
+    $query->addExpression('chk.field_checked_scheduler_value', 'answered');
 
-    $query->orderBy('day');
+    $query->orderBy('day', 'DESC');
     $query->condition('n.type', 'scheduler');
 
     if (!$this->isAdmin) $query->condition('n.uid', $user->uid);
@@ -196,14 +232,24 @@ class ReportSchedules
       $query->where("lower(n.title) LIKE '%".strtolower($_GET['nome'])."%'");
     }
 
-    if (!empty($_GET['data_ini'])) {
-      $dataInicio = join('-', array_reverse(explode('/', $_GET['data_ini']))) . ' 00:00:00';
-      $query->condition('n.created', "'".$dataInicio."'", '>=');
+    if (!empty($_GET['type']) && $_GET['type'] !== 'Tipo') {
+      $query->where("lower(type.field_type_value) LIKE '%".strtolower($_GET['type'])."%'");
     }
-    if (!empty($_GET['data_fim'])) {
-      $dataFim = join('-', array_reverse(explode('/', $_GET['data_fim']))) . ' 23:59:59';
-      $query->condition('n.created', "'".$dataFim."'", '<=');
+
+    if (!empty($_GET['petname'])) {
+      $query->where("lower(pt.field_petname_value) LIKE '%".strtolower($_GET['petname'])."%'");
     }
+
+
+
+//    if (!empty($_GET['data_ini'])) {
+//      $dataInicio = join('-', array_reverse(explode('/', $_GET['data_ini']))) . ' 00:00:00';
+//      $query->condition('day', "'".strtotime($dataInicio)."'", '>=');
+//    }
+//    if (!empty($_GET['data_fim'])) {
+//      $dataFim = join('-', array_reverse(explode('/', $_GET['data_fim']))) . ' 23:59:59';
+//      $query->condition('day', "'".strtotime($dataFim)."'", '<=');
+//    }
   }
 
   /**

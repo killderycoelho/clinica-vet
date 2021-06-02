@@ -21,31 +21,63 @@ if ($toDownload !== true) {
 
   ?>
 <div class="container">
-  <div class="view container">
-    <div class="view-filters">
-      <form action="" method="get" id="form_busca" accept-charset="UTF-8">
-        <div class="container-report clearfix">
-          <div class="row">
-            <div class="col-md-6 form-item">
-              <input class="form-control form-text" type="text" name="nome" placeholder="Nome"
-                     value="<?php print isset($_GET['nome']) ? $_GET['nome'] : ''; ?>" size="25" maxlength="128">
-            </div>
-            <div class="col-md-6">
-              <div class="col-md-4 form-item css-field-data">
-                <div class="data data_inicio">
-                  <input mask="99/99/9999" class="mask datepicker form-control form-text" type="text" id="edit-created"
-                         name="data_ini" value="<?php print isset($_GET['data_ini']) ? $_GET['data_ini'] : null; ?>"
-                         size="10" maxlength="10" placeholder="Data início">
+  <?php if (!$isAdmin): ?>
+    <div class="row scheduler" style="margin-bottom: 20px; display: flex;">
+      <a href="node/add/scheduler" ><button type="button" class="btn btn-primary">Agendar</button></a>
+    </div>
+  <?php endif; ?>
+  <div class="row">
+    <div class="view">
+      <div class="view-filters">
+        <form action="" method="get" id="form_busca" accept-charset="UTF-8">
+          <div class="container-report clearfix">
+            <div class="row">
+              <?php if ($isAdmin): ?>
+                <div class="col-md-3 form-item">
+                  <input class="form-control form-text" type="text" autocomplete="off" name="nome" placeholder="Nome"
+                         value="<?php print isset($_GET['nome']) ? $_GET['nome'] : ''; ?>" size="25" maxlength="128">
+                </div>
+              <?php endif; ?>
+              <div class="col-md-3 form-item">
+                <input class="form-control form-text" type="text" autocomplete="off" name="petname" placeholder="Nome do pet"
+                       value="<?php print isset($_GET['petname']) ? $_GET['petname'] : ''; ?>" size="25" maxlength="128">
+              </div>
+              <div class="col-md-3 form-item">
+                <div id="edit-title-wrapper" class="form-group views-exposed-widget views-widget-filter-title">
+                  <div class="form-type-textfield form-item-title form-item form-group">
+                    <select name="type" class="form-control form-select input-type">
+                      <option>Tipo</option>
+
+                      <?php
+                      $selected = isset($filtros['type']) ? $filtros['type'] : NULL;
+
+                      $options = ['banho' => 'Banho', 'consulta' => 'Consulta', 'servicos' => 'Serviços'];
+                      foreach ($options as $key => $value) {
+                        $selectedAttr = ($selected == $key) ? 'selected' : '';
+
+                        print "<option {$selectedAttr} value='{$key}'>{$value}</option>";
+                      }
+                      ?>
+
+                    </select>
+                  </div>
                 </div>
               </div>
-              <div class="col-md-4 form-item css-field-data">
-                <div class="data data_fim">
-                  <input mask="99/99/9999" class="mask datepicker form-control form-text" type="text" id="edit-created_1"
-                         name="data_fim" value="<?php print isset($_GET['data_fim']) ? $_GET['data_fim'] : null; ?>"
-                         size="10" maxlength="10"  placeholder="Data final">
-                </div>
-              </div>
-              <div class="col-md-4 form-item views-submit-button" >
+              <!--            <div class="col-md-2 form-item css-field-data">-->
+              <!--              <div class="data data_inicio">-->
+              <!--                <input mask="99/99/9999" class="mask datepicker form-control form-text" autocomplete="off" type="text" id="edit-created"-->
+              <!--                       name="data_ini" value="--><?php //print isset($_GET['data_ini']) ? $_GET['data_ini'] : null; ?><!--"-->
+              <!--                       size="10" maxlength="10" placeholder="Data início">-->
+              <!--              </div>-->
+              <!--            </div>-->
+              <!--            <div class="col-md-2 form-item css-field-data">-->
+              <!--              <div class="data data_fim">-->
+              <!--                <input mask="99/99/9999" class="mask datepicker form-control form-text" autocomplete="off" type="text" id="edit-created_1"-->
+              <!--                       name="data_fim" value="--><?php //print isset($_GET['data_fim']) ? $_GET['data_fim'] : null; ?><!--"-->
+              <!--                       size="10" maxlength="10"  placeholder="Data final">-->
+              <!--              </div>-->
+              <!--            </div>-->
+              <div class="col-md-2 form-item views-submit-button" >
                 <?php
                 $attributes_submit = [
                   'id' => 'edit-submit-scheduler',
@@ -62,10 +94,9 @@ if ($toDownload !== true) {
                 </button>
               </div>
             </div>
-
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
   <div class="container-alt clearfix">

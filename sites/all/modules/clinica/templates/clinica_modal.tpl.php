@@ -9,7 +9,7 @@
       <div class='modal-body'>
         <div class='row'>
           <div class='col-md-6 info-text'>
-            <p><strong>Tutor:</strong> <?php print $dados->field_petname['und'][0]['value']; ?> </p>
+            <p><strong>Tutor:</strong> <?php print $dados->title; ?> </p>
             <p><strong>Pet:</strong> <?php print $dados->field_petname['und'][0]['value']; ?></p>
             <p><strong>Data:</strong> <?php print date('d/m/Y', $dados->field_day['und'][0]['value']) .' - '. $dados->field_horario['und'][0]['value'] .'h'; ?> </p>
             <p><strong>Tipo de Serviço:</strong> <?php print $dados->field_type['und'][0]['value']; ?></p>
