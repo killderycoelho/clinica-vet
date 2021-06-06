@@ -218,7 +218,6 @@ function clinica_unpublish_schedule_last_day(){
  * @see https://drupal.org/node/1048644
  */
 function form_disable_vertical_tabs(&$form){
-  // originally $form['additional_settings']['#type'] equals to 'vertical_tabs'
   if(isset($form['additional_settings']['#type']) && ($form['additional_settings']['#type'] === 'vertical_tabs')){
     $form['additional_settings']['#type'] = 'fieldset';
   }

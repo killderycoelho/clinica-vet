@@ -5,6 +5,7 @@ require_once 'inc/clinica.helpers.php';
 
 //Reports
 require_once 'reports/ReportSchedules.php';
+require_once 'reports/ReportPet.php';
 
 
 
@@ -28,6 +29,11 @@ function clinica_theme()
       'function' => '_bootstrap_avanz_table',
       'variables' => array('variables' => array()),
     ),
+    'clinica_report_pets' => array(
+      'path' =>  drupal_get_path('module', 'clinica'),
+      'template' => 'templates/clinica_pets',
+      'variables' => array('dados' => NULL),
+    ),
   );
 }
 
@@ -41,12 +47,18 @@ function clinica_user_login(&$edit, $account) {
  */
 function clinica_menu() {
 
-  $menuitems['report-pet'] = array(
+  $menuitems['pets'] = array(
     'title' => 'Pets',
     'page callback' => '_pets_list',
     'access callback' => 'user_is_logged_in',
     'menu_name' => 'main-menu',
     'type' => MENU_NORMAL_ITEM,
+  );
+
+  $menuitems['pets/download'] = array(
+    'page callback' => '_clinica_pets_download',
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
   $menuitems['schedules'] = array(
@@ -105,7 +117,18 @@ function _login_page() {
 }
 
 function _pets_list() {
-  return views_embed_view('pet_s', 'page');
+  return report_pet()->getTable();
+}
+
+/**
+ * Callback para a o download da listagem do relatório de pets
+ *
+ * @return string
+ * @throws Exception
+ */
+function _clinica_pets_download()
+{
+  return report_pet()->toDownload()->getTable();
 }
 
 
@@ -143,6 +166,10 @@ function clinica_node_insert($node){
     $updateNode = node_load($node->nid);
     $updateNode->title = $node->title . ' - ' . $node->name;
     node_save($updateNode);
+    drupal_goto('pets');
+  }
+  if ($node->type == 'scheduler') {
+    drupal_goto('pets');
   }
 }
 
@@ -180,7 +207,6 @@ function clinica_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 }
-
 
 
 
